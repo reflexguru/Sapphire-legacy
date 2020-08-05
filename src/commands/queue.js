@@ -24,7 +24,7 @@ class Command extends CommandTemplate {
     if (!msg.member.voiceState.channelID)
       return
 
-    let queue = qm.getQueue(msg.guildId)
+    let queue = qm.getQueue(msg.guildID)
 
     let queueString = `${sp.get('queue')} **${msg.member.guild.name}**\n${sp.get('songsamount')}${queue.list.length}\n`
     let firstSong = queue.current - 5 < 0 ? 0 : queue.current - 5 > queue.list.length - 6 ? queue.list.length - 11 : queue.np - 5
