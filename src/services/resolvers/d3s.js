@@ -2,8 +2,8 @@ const axios = require('axios')
 
 class Resolver {
   constructor () {
-    if (!require('../../config.js').jjjYts) {
-      process.send({ name: 'info', msg: 'Hey! I\'m something that blocks you from running this bot. I\'m preventing stupid people from stealing this bot and running his own instances. You can remove me if you\'re smart enough 🙃' })
+    if (!require('../../config.js').immasmartlemmein) {
+      process.send({ name: 'info', msg: 'Hey! I\'m something that blocks you from running this bot. I\'m preventing stupid people from stealing this bot and running their own instances. You can remove me if you\'re smart enough 🙃' })
       process.exit()
     }
   }
