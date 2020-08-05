@@ -3,8 +3,8 @@ const CommandTemplate = require('../classes/commandTemplate.js')
 class Command extends CommandTemplate {
   get alias () {
     return {
-      ru: ['стоп', 'с'],
-      en: ['stop', 's']
+      ru: ['стоп', 'ст'],
+      en: ['stop', 'st']
     }
   }
 

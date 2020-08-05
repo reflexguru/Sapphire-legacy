@@ -22,7 +22,7 @@ class Command extends CommandTemplate {
   async run (msg, sp, qm) {
     if (!msg.args[0]) return msg.channel.createMessage(sp.get('nourl'))
 
-    qm.push(msg.serverID, { url: msg.args[0] }, msg)
+    qm.push(msg.guildID, { url: msg.args[0] }, msg, msg.member)
   }
 }
 

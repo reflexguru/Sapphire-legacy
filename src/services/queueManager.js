@@ -8,11 +8,12 @@ const ytdl = require('ytdl-core')
 class QueueManager {
   constructor (client) {
     this.data = {}
+    this.searchData = {}
     this.client = client
     this.resolver = new StreamResolver()
   }
 
-  async push (serverId, data, msg) {
+  async push (serverId, data, msg, member) {
     if (!this.data[serverId]) this.data[serverId] = { list: [], current: 0 }
     this.data[serverId].channel = msg.channel.id
 
@@ -22,17 +23,17 @@ class QueueManager {
     let m
 
     if (this.data[serverId].list.length === 1) {
-      await this.initConnection(serverId, msg.member, msg.channel)
-      this.play()
+      await this.initConnection(serverId, member, msg.channel)
+      this.play(serverId)
       m = await msg.channel.createMessage({
         embed: this.generateEmbed(streamdata)
       })
     } else m = await msg.addReaction('s_check:540623604505903124')
 
-    /* if (this.data[serverId].message)
+    if (this.data[serverId].message)
       this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
 
-    this.data[serverId].message = m.id */
+    this.data[serverId].message = m.id
   }
 
   async initConnection (serverId, member, channel) {
@@ -43,8 +44,11 @@ class QueueManager {
       this.data[serverId].voice.stopPlaying()
     })
 
-    this.data[serverId].voice.on('end', () => {
+    this.data[serverId].voice.on('end', async () => {
       this.data[serverId].current++
+
+      if (this.data[serverId].message)
+        this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
 
       if (
         this.data[serverId].current >= this.data[serverId].list.length ||
@@ -53,10 +57,10 @@ class QueueManager {
         this.client.leaveVoiceChannel(this.data[serverId].voiceId)
         delete this.data[serverId]
       } else {
-        this.play()
-        channel.createMessage({
+        this.play(serverId)
+        this.data[serverId].message = (await channel.createMessage({
           embed: this.generateEmbed(this.data[serverId].list[this.data[serverId].current])
-        })
+        })).id
       }
     })
 
@@ -92,8 +96,7 @@ class QueueManager {
       .color('#3399ff')
       .description(
         '**' + streamData.name + '**' +
-        '\nUrl: ' +
-        streamData.url
+        '\n' + streamData.url
       )
       .build()
   }

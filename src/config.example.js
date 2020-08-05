@@ -1,3 +1,5 @@
+const { youtubeApiToken } = require("./config");
+
 module.exports = {
   mode: '', // dev || prod
   tokens: {
@@ -13,5 +15,6 @@ module.exports = {
     prod: ''
   },
   defaultPrefix: '',
-  yandexCookie: '' // register on yandex music to get 192 kbps music bitrate instead of 128
+  yandexCookie: '', // optional, register on yandex music to get 192 kbps music bitrate instead of 128
+  youtubeApiToken: ''
 }
