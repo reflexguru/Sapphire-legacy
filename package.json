@@ -1,0 +1,13 @@
+{
+  "name": "sapphire",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "eris-sharder": "^1.10.0",
+    "mongoose": "^5.9.27",
+    "prism-media": "^1.2.2",
+    "ytdl-core": "^3.2.0"
+  }
+}
