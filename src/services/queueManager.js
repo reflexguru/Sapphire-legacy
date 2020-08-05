@@ -73,7 +73,7 @@ class QueueManager {
       const encoder = new Encoder(streamUrl)
       stream = await encoder.prepare()
     } else if (data.list[data.current].source === 'youtube')
-      stream = ytdl(data.list[data.current].url, { quality: '251' })
+      stream = (await axios.get('https://d3s.ru/yt/' + data.list[data.current].ytId, { responseType: 'stream' })).data
     else
       stream = (await axios.get(streamUrl, { responseType: 'stream' })).data
 
@@ -104,6 +104,11 @@ class QueueManager {
 
   getBack (serverId) {
     this.data[serverId].current -= 2
+  }
+
+  destroy (serverId) {
+    this.data[serverId].current = -2
+    this.data[serverId].voice.stopPlaying()
   }
 }
 

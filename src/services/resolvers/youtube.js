@@ -10,7 +10,8 @@ class Resolver {
       url,
       name: info.videoDetails.title,
       noEncode: true,
-      source: 'youtube'
+      source: 'youtube',
+      ytId: id
     }
 
     return data
