@@ -11,5 +11,6 @@ module.exports = {
   mongodb: {
     dev: '', // mongodb uri
     prod: ''
-  }
+  },
+  defaultPrefix: ''
 }
