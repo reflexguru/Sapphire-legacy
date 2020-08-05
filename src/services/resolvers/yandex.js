@@ -1,4 +1,5 @@
 const axios = require('axios')
+const config = require('../../config.js')
 
 class Resolver {
   constructor () {}
@@ -27,7 +28,7 @@ class Resolver {
         headers: {
           'accept': 'application/json; q=1.0, text/*; q=0.8, */*; q=0.1',
           'X-Retpath-Y': `https%3A%2F%2Fmusic.yandex.ru%2Ftrack%2F${trackId}`,
-          // 'Cookie': ''
+          'Cookie': config.yandexCookie || ''
         }
       }
       let res = await axios(o)
@@ -45,7 +46,7 @@ class Resolver {
         headers: {
           'accept': 'application/json; q=1.0, text/*; q=0.8, */*; q=0.1',
           'X-Retpath-Y': `https%3A%2F%2Fmusic.yandex.ru%2Ftrack%2F${trackId}`,
-          // 'Cookie': ''
+          'Cookie': config.yandexCookie || ''
         }
       }
       let res = await axios(o)

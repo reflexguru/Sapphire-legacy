@@ -12,5 +12,6 @@ module.exports = {
     dev: '', // mongodb uri
     prod: ''
   },
-  defaultPrefix: ''
+  defaultPrefix: '',
+  yandexCookie: '' // register on yandex music to get 192 kbps music bitrate instead of 128
 }
