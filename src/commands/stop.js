@@ -20,7 +20,7 @@ class Command extends CommandTemplate {
   }
 
   async run (msg, sp, qm) {
-    qm.destroy(msg.guildId)
+    qm.destroy(msg.guildID)
     msg.addReaction('s_check:540623604505903124')
   }
 }
