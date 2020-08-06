@@ -1,15 +1,18 @@
 const axios = require('axios')
 const config = require('../../config.js')
+const TokenService = require('../spotifyTokenService.js')
 
 class Resolver {
-  constructor () {}
+  constructor () {
+    this.tokenService = new TokenService()
+  }
 
   async convert (url) {
     const songId = (url.split('/')[url.split('/').length - 1] + '?').split('?')[0]
 
     const info = await axios.get('https://api.spotify.com/v1/tracks/' + songId, {
       headers: {
-        Authorization: 'Bearer ' + config.spotifyToken
+        Authorization: 'Bearer ' + this.tokenService.token
       }
     })
 
@@ -19,7 +22,17 @@ class Resolver {
   }
 
   async convertAlbum (url) {
-    
+    const albumId = (url.split('/')[url.split('/').length - 1] + '?').split('?')[0]
+
+    const info = await axios.get('https://api.spotify.com/v1/tracks/' + albumId, {
+      headers: {
+        Authorization: 'Bearer ' + this.tokenService.token
+      }
+    })
+
+    process.send({ name: 'debug', msg: info })
+
+    return []
   }
 }
 
