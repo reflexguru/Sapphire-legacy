@@ -53,8 +53,8 @@ class Sapphire extends Base {
 
     client.on('messageReactionAdd', async (msg, emoji, userID) => {
       // will move this into separate file later
-
       if (userID === client.user.id) return
+      if (msg.member.id !== client.user.id) return
 
       if (!['🗑', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].includes(emoji.name)) return
 
