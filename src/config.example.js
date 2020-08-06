@@ -16,5 +16,6 @@ module.exports = {
   },
   defaultPrefix: '',
   yandexCookie: '', // optional, register on yandex music to get 192 kbps music bitrate instead of 128
-  youtubeApiToken: ''
+  youtubeApiToken: '',
+  soundcloudToken: '' // soundcloud client_id
 }
