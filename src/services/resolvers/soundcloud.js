@@ -9,7 +9,7 @@ class Resolver {
 
     const stream = await getTrack(url)
     if (stream.invalid) return { invalid: true }
-    if (stream.streamUrl) return stream
+    if (stream.streamUrl) return [stream]
 
     async function getTrack (track) {
       const link = 'https://api-v2.soundcloud.com/resolve?url=' + track + '&client_id=' + config.soundcloudToken

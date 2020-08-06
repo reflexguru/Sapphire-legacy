@@ -17,8 +17,18 @@ class QueueManager {
     if (!this.data[serverId]) this.data[serverId] = { list: [], current: 0 }
     this.data[serverId].channel = msg.channel.id
 
-    const streamdata = await this.resolver.resolve(data.url)
-    this.data[serverId].list.push(streamdata)
+    let streamdata
+    
+    try {
+      streamdata = await this.resolver.resolve(data.url)
+    } catch {
+      msg.addReaction('dnd:525376389449252864')
+    }
+
+    if (streamdata.invalid) return msg.addReaction('dnd:525376389449252864')
+
+    for (const stream of streamdata)
+      this.data[serverId].list.push(stream)
 
     let m
 
@@ -26,7 +36,7 @@ class QueueManager {
       await this.initConnection(serverId, member, msg.channel)
       this.play(serverId)
       m = await msg.channel.createMessage({
-        embed: this.generateEmbed(streamdata)
+        embed: this.generateEmbed(streamdata[0])
       })
     } else m = await msg.addReaction('s_check:540623604505903124')
 

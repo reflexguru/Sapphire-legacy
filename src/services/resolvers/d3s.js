@@ -15,12 +15,12 @@ class Resolver {
     const name = res.data.name
     const url = res.data.url
     const streamUrl = res.data.directUrl
-    return {
+    return [{
       url,
       streamUrl,
       name,
       source: 'D3S Cloud'
-    }
+    }]
   }
 }
 

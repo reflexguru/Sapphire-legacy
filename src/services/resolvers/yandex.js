@@ -14,12 +14,12 @@ class Resolver {
     if (url.invalid) return { invalid: true }
 
     if (info && url)
-      return {
+      return [{
         url: link,
         streamUrl: url,
         name: info.name,
         source: 'Yandex.Music'
-      }
+      }]
 
     async function getTrackInfo (trackId) {
       let o = {

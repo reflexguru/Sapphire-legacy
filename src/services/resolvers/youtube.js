@@ -14,7 +14,7 @@ class Resolver {
       ytId: id
     }
 
-    return data
+    return [data]
   }
 }
 
