@@ -32,7 +32,7 @@ class CommandResolver {
 
     msg.args = msg.content.split(' ').slice(1)
 
-    return { command, m: msg, lang: guild.language }
+    return { command, m: msg, lang: guild.language, guild }
   }
 }
 

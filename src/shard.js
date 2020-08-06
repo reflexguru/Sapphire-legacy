@@ -44,11 +44,11 @@ class Sapphire extends Base {
     })
 
     client.on('messageCreate', async (msg) => {
-      const { command, m, lang } = await commandResolver.resolve(msg, commands) || {}
+      const { command, m, lang, guild } = await commandResolver.resolve(msg, commands) || {}
 
       if (!command) return
 
-      command.run(m, new StringProvider(lang), queueManager, searcher)
+      command.run(m, new StringProvider(lang), queueManager, searcher, commands, guild)
     })
 
     client.on('messageReactionAdd', async (msg, emoji, userID) => {

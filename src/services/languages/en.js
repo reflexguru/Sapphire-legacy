@@ -5,5 +5,6 @@ module.exports = {
   queue: 'Playlist in ',
   songsamount: 'Tracks amount: ',
   noservice: '❗ No searching service provided (yt, ym)\nyt - Youtube\nym - Yandex.Music',
-  nosearchquery: '❗ No search query provided.'
+  nosearchquery: '❗ No search query provided.',
+  cmdlist: 'List of commands'
 }
