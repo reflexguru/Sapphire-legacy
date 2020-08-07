@@ -32,7 +32,7 @@ class QueueManager {
 
     let m
 
-    if (this.data[serverId].list.length === 1) {
+    if (!this.data[serverId].voice) {
       await this.initConnection(serverId, member, msg.channel)
       this.play(serverId)
       m = await msg.channel.createMessage({
