@@ -21,8 +21,9 @@ class QueueManager {
     
     try {
       streamdata = await this.resolver.resolve(data.url)
-    } catch {
+    } catch (e) {
       msg.addReaction('dnd:525376389449252864')
+      console.error(e)
     }
 
     if (streamdata.invalid) return msg.addReaction('dnd:525376389449252864')
