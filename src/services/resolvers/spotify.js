@@ -40,18 +40,9 @@ class Resolver {
     })
 
     const yandexCheckAlbum = await axios.get(`https://music.yandex.ru/handlers/music-search.jsx?text=${encodeURIComponent(info.data.artists[0].name + ' ' + info.data.name)}&type=albums&lang=en`)
-    const yandexGetTracks = await axios.get(`https://music.yandex.ru/handlers/album.jsx?album=${yandexCheckAlbum.data.albums.items[0].id}&lang=en&external-domain=music.yandex.ru&overembed=false`)
-    if (!yandexGetTracks.data.volumes) return { invalid: true }
-    
-    let streams = []
-    for (const i in yandexGetTracks.data.volumes[0]) {
-      let stream = (await this.yandex.resolve(`https://music.yandex.ru/album/${yandexCheckAlbum.data.albums.items[0].id}/track/${yandexGetTracks.data.volumes[0][i].id}`))[0]
-      stream.url = info.data.tracks.items[i].external_urls.spotify
-      stream.source = 'Spotify'
-      streams.push(stream)
+    if (!yandexCheckAlbum.data.albums.items[0].id) return { invalid: true }
 
-      if (streams.length == yandexGetTracks.data.volumes[0].length) return streams
-    }
+    // return (await this.yandex.getAlbum(yandexCheckAlbum.data.albums.items[0].id)).map(track => Object.assign({}, track, { url:  })
   }
 }
 
