@@ -42,7 +42,6 @@ class Resolver {
     const yandexCheckAlbum = await axios.get(`https://music.yandex.ru/handlers/music-search.jsx?text=${encodeURIComponent(info.data.artists[0].name + ' ' + info.data.name)}&type=albums&lang=en`)
     if (!yandexCheckAlbum.data.albums.items[0].id) return { invalid: true }
 
-    // return await this.yandex.getAlbum(yandexCheckAlbum.data.albums.items[0].id)
     const yaTracks = await this.yandex.getAlbum(yandexCheckAlbum.data.albums.items[0].id)
     return yaTracks.map(track => Object.assign({}, track, { url: `https://open.spotify.com/track/${info.data.tracks.items[yaTracks.indexOf(track)].id}` }))
   }

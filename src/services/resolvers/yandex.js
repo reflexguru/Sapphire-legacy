@@ -16,11 +16,9 @@ class Resolver {
 
   async getTrack (trackId) {
     const info = await getTrackInfo(trackId)
-    console.log(info)
     if (info.invalid) return { invalid: true }
 
     const url = await getDownloadServer(trackId)
-    console.log(url)
     if (url.invalid) return { invalid: true }
 
     if (info && url)
