@@ -65,6 +65,20 @@ class Sapphire extends Base {
       if (emoji.name !== '🗑')
         queueManager.push(msg.guildID, { url: queueManager.searchData[msg.guildID].results[emojiToInt.indexOf(emoji.name)].url }, msg, msg.member.guild.members.find(mbr => mbr.id === userID))
     })
+
+    client.on('guildCreate', (guild) => {
+      client.executeWebhook(config.webhook.id, config.webhook.token, {
+        username: 'Guilds',
+        content: '🟩 ' + guild.name + ' | ' + guild.id
+      })
+    })
+
+    client.on('guildDelete', (guild) => {
+      client.executeWebhook(config.webhook.id, config.webhook.token, {
+        username: 'Guilds',
+        content: '🟥 ' + guild.name + ' | ' + guild.id
+      })
+    })
   }
 }
 
