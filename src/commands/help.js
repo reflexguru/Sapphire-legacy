@@ -22,7 +22,7 @@ class Command extends CommandTemplate {
 
   async run (msg, sp, qm, s, commands, guild) {
     let embed = new Embed()
-      .color('#3399ff')
+      .color('#2f3136')
 
     let desc = sp.get('cmdlist') + '\n'
 

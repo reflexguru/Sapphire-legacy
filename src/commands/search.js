@@ -30,7 +30,7 @@ class Command extends CommandTemplate {
     const results = await s.search(service, query)
 
     let embed = new Embed()
-      .color('#3399ff')  
+      .color('#2f3136')  
 
     for (const result of results) {
       embed = embed.field((results.indexOf(result) + 1) + '. ' + result.name, result.artist)

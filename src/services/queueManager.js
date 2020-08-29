@@ -104,9 +104,15 @@ class QueueManager {
 
   generateEmbed (streamData) {
     return new Embed()
-      .color('#3399ff')
+      .color('#2f3136')
       .description(
-        '**' + streamData.name + '**' +
+        (
+          ( streamData.source === 'Spotify' && '<:spotify:743934452115439676>' ) ||
+          ( streamData.source === 'Yandex.Music' && '<:yandex:743936341376761988>' ) ||
+          ( streamData.source === 'soundcloud' && '<:soundcloud:743937076000587816>' ) ||
+          ( streamData.source === 'youtube' && '<:youtube:743935149624000532>' ) || ''
+        ) +
+        '   **' + streamData.name + '**' +
         '\n' + streamData.url
       )
       .build()

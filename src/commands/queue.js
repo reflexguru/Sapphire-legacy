@@ -38,7 +38,7 @@ class Command extends CommandTemplate {
 
     msg.channel.createMessage({
       embed: new Embed()
-        .color('#3399ff')  
+        .color('#2f3136')  
         .description(queueString)
         .build()
     })
