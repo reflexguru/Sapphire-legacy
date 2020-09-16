@@ -29,7 +29,7 @@ class Sapphire extends Base {
     }
     process.send({ name: 'debug', msg: 'Done.' })
 
-    client.editStatus('idle', { type: 2, name: config.defaultPrefix + 'help' })
+    client.editStatus('online', { type: 2, name: config.defaultPrefix + 'help' })
 
     mongoose.connect(config.mongodb[config.mode], {
       useNewUrlParser: true,
