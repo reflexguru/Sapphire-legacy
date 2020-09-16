@@ -5,6 +5,8 @@ class CommandResolver {
   constructor () {}
 
   async resolve (msg, commands) {
+    if (msg.author.bot) return
+
     let guild
 
     if ( !(guild = await Guild.findOne({ id: msg.guildID }).select('prefix language').lean()) ) {
