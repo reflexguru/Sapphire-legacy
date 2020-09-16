@@ -17,7 +17,7 @@ class CommandResolver {
 
     if (!msg.content.startsWith(guild.prefix)) return null
 
-    const cmdName = msg.content.split(guild.prefix)[1].split(' ')[0]
+    const cmdName = msg.content.replace(guild.prefix, '').split(' ')[0]
 
     const command = commands.filter(i => i.alias[guild.language].includes(cmdName))[0]
 
