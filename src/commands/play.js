@@ -19,10 +19,19 @@ class Command extends CommandTemplate {
     return []
   }
 
-  async run (msg, sp, qm) {
+  async run (msg, sp, qm, s) {
     if (!msg.args[0]) return msg.channel.createMessage(sp.get('nourl'))
 
-    qm.push(msg.guildID, { url: msg.args[0] }, msg, msg.member)
+    if (msg.args[0].match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/))
+      qm.push(msg.guildID, { url: msg.args[0] }, msg, msg.member)
+    else {
+      const results = await s.search('yt', msg.args.join(' '))
+
+      if (results.length)
+        qm.push(msg.guildID, { url: results[0].url }, msg, msg.member)
+      else
+        msg.channel.createMessage(sp.get('cannotfind'))
+    }
   }
 }
 
