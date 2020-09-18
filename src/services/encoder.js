@@ -16,7 +16,8 @@ class Encoder {
         '-f', 'webm',
         '-c:a', 'libopus',
         '-ac', '2',
-        '-b:a', '160k'
+        '-b:a', '160k',
+        '-vn'
       ]
     })
 
