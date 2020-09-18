@@ -3,6 +3,7 @@ const Base = require('eris-sharder').Base
 // libraries
 const mongoose = require('mongoose')
 const fs = require('fs')
+const DBL = require('dblapi.js')
 
 // services
 const config = require('./config.js')
@@ -42,6 +43,21 @@ class Sapphire extends Base {
         process.exit()
       } else process.send({ name: 'debug', msg: 'Connected to mongodb' })
     })
+
+    if (config.mode === 'prod') {
+      process.send({ name: 'debug', msg: 'Initing DBL api...' })
+
+      const dbl = new DBL(config.dblToken, client)
+
+      dbl.on('posted', () => {
+        client.executeWebhook(config.webhook.id, config.webhook.token, {
+          username: 'Stats',
+          content: 'Posted server count'
+        })
+      })
+
+      dbl.on('error', console.log)
+    }
 
     client.on('messageCreate', async (msg) => {
       const { command, m, lang, guild } = await commandResolver.resolve(msg, commands) || {}
