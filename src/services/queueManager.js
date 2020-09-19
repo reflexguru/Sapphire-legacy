@@ -88,7 +88,7 @@ class QueueManager {
       const encoder = new Encoder(streamUrl)
       stream = await encoder.prepare()
     } else if (data.list[data.current].source === 'youtube')
-      stream = (await axios.get('https://d3s.ru/yt/' + data.list[data.current].ytId, { responseType: 'stream' })).data
+      stream = ytdl('https://youtube.com/watch?v=' + data.list[data.current].ytId, { quality: '251', highWaterMark: 20971520 })
     else
       stream = (await axios.get(streamUrl, { responseType: 'stream' })).data
 
