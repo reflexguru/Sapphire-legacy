@@ -1,22 +1,23 @@
 const { youtubeApiToken } = require("./config");
 
 module.exports = {
-  mode: '', // dev || prod
+  mode: String, // dev || prod
   tokens: {
-    dev: '', // dev mode token
-    prod: '' // production mode token
+    dev: String, // dev mode token
+    prod: String // production mode token
   },
   webhook: {
-    id: '',
-    token: ''
+    id: String,
+    token: String
   },
   mongodb: {
-    dev: '', // mongodb uri
-    prod: ''
+    dev: String, // mongodb uri
+    prod: String
   },
-  defaultPrefix: '',
-  yandexCookie: '', // optional, register on yandex music to get 192 kbps music bitrate instead of 128
-  youtubeApiToken: '',
-  soundcloudToken: '', // soundcloud client_id
-  dblToken: '' // for posting stats in discord bot list
+  defaultPrefix: String,
+  yandexCookie: String, // optional, register on yandex music to get 192 kbps music bitrate instead of 128
+  youtubeApiToken: String,
+  soundcloudToken: String, // soundcloud client_id
+  dblToken: String, // for posting stats in discord bot list
+  audioSender: Number, // 0 - legacy local with ffmpeg, 1 - lavalink
 }
