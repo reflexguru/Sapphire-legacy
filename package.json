@@ -6,6 +6,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dblapi.js": "^2.4.1",
+    "erela.js": "^2.0.0",
     "eris-sharder": "^1.10.0",
     "mongoose": "^5.9.27",
     "prism-media": "^1.2.2",

@@ -1,6 +1,9 @@
 const Embed = require('./embedConstructor.js')
 const StreamResolver = require('./streamResolver.js')
 const Encoder = require('./encoder.js')
+const LavaPlayer = require('./lavaPlayer.js')
+
+const config = require('../config.js')
 
 const axios = require('axios')
 const ytdl = require('ytdl-core')
@@ -11,6 +14,11 @@ class QueueManager {
     this.searchData = {}
     this.client = client
     this.resolver = new StreamResolver()
+    this.lavaplayer = new LavaPlayer(this.client)
+
+    this.lavaplayer.manager.on('trackEnd', (player) => {
+      console.log(player)
+    })
   }
 
   async push (serverId, data, msg, member) {
@@ -20,7 +28,7 @@ class QueueManager {
     let streamdata
     
     try {
-      streamdata = await this.resolver.resolve(data.url)
+      streamdata = await this.resolver.resolve(data.url, this.lavaplayer, serverId, member, msg)
     } catch (e) {
       msg.addReaction('dnd:525376389449252864')
       console.error(e)
@@ -31,15 +39,45 @@ class QueueManager {
     for (const stream of streamdata)
       this.data[serverId].list.push(stream)
 
-    let m
+    let m = {}
 
-    if (!this.data[serverId].voice) {
-      await this.initConnection(serverId, member, msg.channel)
-      this.play(serverId)
+    if (config.audioSender === 0) {
+      if (!this.data[serverId].voice) {
+        await this.initConnection(serverId, member, msg.channel)
+        this.play(serverId)
+        m = await msg.channel.createMessage({
+          embed: this.generateEmbed(streamdata[0])
+        })
+      } else m = await msg.addReaction('s_check:540623604505903124')
+    } else {
+      const player = await this.lavaplayer.initConnection(serverId, member, msg.channel)
+      this.play(serverId, player)
+      this.data[serverId].voice = player
+      this.data[serverId].voiceId = member.voiceState.channelID
       m = await msg.channel.createMessage({
         embed: this.generateEmbed(streamdata[0])
       })
-    } else m = await msg.addReaction('s_check:540623604505903124')
+
+      player.on('vend', async () => {
+        this.data[serverId].current++
+  
+        if (this.data[serverId].message)
+          this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
+  
+        if (
+          this.data[serverId].current >= this.data[serverId].list.length ||
+          this.data[serverId].current < 0
+        ) {
+          await this.data[serverId].voice.destroy()
+          delete this.data[serverId]
+        } else {
+          this.play(serverId)
+          this.data[serverId].message = (await channel.createMessage({
+            embed: this.generateEmbed(this.data[serverId].list[this.data[serverId].current])
+          })).id
+        }
+      })
+    }
 
     if (this.data[serverId].message)
       this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
@@ -78,7 +116,17 @@ class QueueManager {
     return
   }
 
-  async play (serverId) {
+  async play (serverId, player) {
+    if (config.audioSender === 0)
+      return this.legacyPlay(serverId)
+
+    const data = this.data[serverId]
+    const lavaTrack = this.data[serverId].list[this.data[serverId].current].lavaTrack
+
+    player.play(lavaTrack)
+  }
+
+  async legacyPlay (serverId) {
     const data = this.data[serverId]
 
     const streamUrl = data.list[data.current].streamUrl
@@ -127,8 +175,13 @@ class QueueManager {
   }
 
   destroy (serverId) {
-    this.data[serverId].current = -2
-    this.data[serverId].voice.stopPlaying()
+    if (config.audioSender === 0) {
+      this.data[serverId].current = -2
+      this.data[serverId].voice.stopPlaying()
+    } else {
+      this.data[serverId].current = 0
+      this.data[serverId].voice.stop()
+    }
   }
 }
 

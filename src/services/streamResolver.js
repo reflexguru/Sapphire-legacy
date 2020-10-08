@@ -5,6 +5,8 @@ const Yandex = require('./resolvers/yandex.js')
 const SoundCloud = require('./resolvers/soundcloud.js')
 const Spotify = require('./resolvers/spotify.js')
 
+const config = require('../config.js')
+
 class StreamResolver {
   constructor () {
     this.direct = new Direct()
@@ -15,20 +17,36 @@ class StreamResolver {
     this.spotify = new Spotify()
   }
 
-  async resolve (url) {
-    if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/(.*)/) || url.match(/^https?:\/\/(www.youtu.be|youtu.be)\/(.*)/))
-      return await this.youtube.resolve(url)
-    else if (url.match(/^(http|https)?:\/\/(cloud.d3s.ru|d3s.ru)\/(open|d)\/(.*?)/))
+  async resolve (url, lava, serverId, member, msg) {
+    const streams = await this.streamResolve(url)
+    if (config.audioSender === 0)
+      return streams
+    else {
+      const player = await lava.initConnection(serverId, member, msg.channel)
+      let lavaStreams = []
+
+      for (let i in streams) {
+        const lavaTracks = await player.search(streams[i].streamUrl)
+
+        for (const track of lavaTracks.tracks) {
+          lavaStreams.push(Object.assign({}, streams[i], { lavaTrack: track }, track.title && track.title !== 'Unknown title' && { name: track.title }))
+        }
+      }
+
+      return lavaStreams
+    }
+  }
+
+  async streamResolve (url) {
+    if (url.match(/^(http|https)?:\/\/(cloud.d3s.ru|d3s.ru)\/(open|d)\/(.*?)/))
       return await this.d3s.resolve(url)
     else if (url.match(/^https?:\/\/(www.music.yandex.*|music.yandex.*)/))
       return await this.yandex.resolve(url)
-    else if (url.match(/^https?:\/\/(www.soundcloud.com|soundcloud.com)\/(.*)/))
-      return await this.soundcloud.resolve(url)
     else if (url.match(/^https?:\/\/(open.spotify.com)\/(track|album)\/(.*?)/))
-      return  await this.spotify.resolve(url)
+      return await this.spotify.resolve(url)
     else if (url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/))
       return await this.direct.resolve(url)
-    else return { invalid: true }
+    //else return { invalid: true }
   }
 }
 
