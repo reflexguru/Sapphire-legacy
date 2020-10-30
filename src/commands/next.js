@@ -20,7 +20,7 @@ class Command extends CommandTemplate {
   }
 
   async run (msg, sp, qm) {
-    qm.voiceEmit(msg.guildID, 'setend')
+    qm.voiceEmit(msg.guildID, 'vend')
   }
 }
 
