@@ -1,32 +1,27 @@
-const CommandTemplate = require('../classes/commandTemplate.js')
+const { SlashCommand } = require('slash-create')
 const Embed = require('../services/embedConstructor.js')
+const config = require('../config.js')
 
-class Command extends CommandTemplate {
-  get alias () {
-    return {
-      ru: ['инвайт', 'пригласить'],
-      en: ['invite']
-    }
+class Command extends SlashCommand {
+  constructor (creator, client, qm, s) {
+    super(creator, {
+      name: 'invite',
+      description: 'Gets an invite link of this bot.',
+      guildIDs: config.mode === 'dev' ? config.debugGuilds : null
+    })
+
+    this.client = client
+    this.qm = qm
+    this.s = s
   }
 
-  get description () {
-    return {
-      ru: 'Отправляет ссылку на приглашение бота в ваш север',
-      en: 'Sends bot invite link'
-    }
-  }
-
-  get permissions () {
-    return []
-  }
-
-  async run (msg, sp, qm, s, commands, guild) {
-    let embed = new Embed()
+  async run (msg) {
+    const embed = new Embed()
       .color('#2f3136')
       .description('[Click to invite me!](https://discord.com/oauth2/authorize?client_id=518101066538024960&scope=bot&permissions=3148800)')
       .build()
 
-    msg.channel.createMessage({ embed })
+    ctx.send({ embeds: [embed] })
   }
 }
 

@@ -1,26 +1,21 @@
-const CommandTemplate = require('../classes/commandTemplate.js')
+const { SlashCommand, CommandOptionType } = require('slash-create')
+const config = require('../config.js')
 
-class Command extends CommandTemplate {
-  get alias () {
-    return {
-      ru: ['след', 'некст', '>'],
-      en: ['next', 'n', '>']
-    }
+class Command extends SlashCommand {
+  constructor (creator, client, qm, s) {
+    super(creator, {
+      name: 'next',
+      description: 'Plays next song from the queue',
+      guilds: config.mode === 'dev' ? config.debugGuilds : null
+    })
+
+    this.client = client
+    this.qm = qm
+    this.s = s
   }
 
-  get description () {
-    return {
-      ru: 'Включает следующую песню',
-      en: 'Plays next song'
-    }
-  }
-
-  get permissions () {
-    return []
-  }
-
-  async run (msg, sp, qm) {
-    qm.voiceEmit(msg.guildID, 'vend')
+  async run (ctx) {
+    this.qm.voiceEmit(ctx.guildID, 'vend', ctx)
   }
 }
 

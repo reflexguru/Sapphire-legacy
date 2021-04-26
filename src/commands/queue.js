@@ -1,32 +1,24 @@
-const CommandTemplate = require('../classes/commandTemplate.js')
+const { SlashCommand } = require('slash-create')
 const Embed = require('../services/embedConstructor.js')
+const config = require('../config.js')
 
-class Command extends CommandTemplate {
-  get alias () {
-    return {
-      ru: ['очередь', 'оч', 'пл'],
-      en: ['queue', 'q', 'pl']
-    }
+class Command extends SlashCommand {
+  constructor (creator, client, qm, s) {
+    super(creator, {
+      name: 'queue',
+      description: 'Shows queue of tracks.',
+      guildIDs: config.mode === 'dev' ? config.debugGuilds : null
+    })
+
+    this.client = client
+    this.qm = qm
+    this.s = s
   }
 
-  get description () {
-    return {
-      ru: 'Показывает очередь треков',
-      en: 'Shows tracks queue'
-    }
-  }
+  async run (ctx) {
+    let queue = this.qm.getQueue(ctx.guildID)
 
-  get permissions () {
-    return []
-  }
-
-  async run (msg, sp, qm) {
-    if (!msg.member.voiceState.channelID)
-      return
-
-    let queue = qm.getQueue(msg.guildID)
-
-    let queueString = `${sp.get('queue')} **${msg.member.guild.name}**\n${sp.get('songsamount')}${queue.list.length}\n`
+    let queueString = `Quele length: ${queue.list.length}\n`
     let firstSong = queue.current - 5 < 0 ? 0 : queue.current - 5 > queue.list.length - 6 ? queue.list.length - 11 : queue.np - 5
 
     for (let i = 0; i < 10; i++) {
@@ -36,11 +28,13 @@ class Command extends CommandTemplate {
       firstSong++
     }
 
-    msg.channel.createMessage({
-      embed: new Embed()
-        .color('#2f3136')  
-        .description(queueString)
-        .build()
+    ctx.send({
+      embeds: [
+        new Embed()
+          .color('#2f3136')  
+          .description(queueString)
+          .build()
+      ]
     })
   }
 }

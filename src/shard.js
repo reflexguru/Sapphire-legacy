@@ -4,11 +4,12 @@ const Base = require('eris-sharder').Base
 const mongoose = require('mongoose')
 const fs = require('fs')
 const DBL = require('dblapi.js')
+const { SlashCreator, GatewayServer } = require('slash-create')
+const path = require('path')
 
 // services
 const config = require('./config.js')
 const QueueManager = require('./services/queueManager.js')
-const CommandResolver = require('./services/commandResolver.js')
 const StringProvider = require('./services/stringProvider.js')
 const Searcher = require('./services/searcher.js')
 
@@ -20,17 +21,37 @@ class Sapphire extends Base {
   launch () {
     const client = this.bot
     const queueManager = new QueueManager(client)
-    const commandResolver = new CommandResolver()
     const searcher = new Searcher()
     const commands = []
 
-    process.send({ name: 'debug', msg: 'Loading commands to RAM...' })
+    process.send({ name: 'debug', msg: 'Enabling Slash Creator...' })
+
+    const creator = new SlashCreator({
+      applicationID: this.bot.user.id,
+      publicKey: config.publicKeys[config.mode],
+      token: config.tokens[config.mode],
+    })
+
+    creator.withServer(
+      new GatewayServer((handler) => client.on('rawWS', (event) => {
+        if (event.t === 'INTERACTION_CREATE') handler(event.d)
+      }))
+    )
     for (const cmd of fs.readdirSync('./src/commands')) {
       commands.push(new (require('./commands/' + cmd))(client))
+      creator.registerCommand(new (require('./commands/' + cmd))(creator, client, queueManager, searcher))
     }
-    process.send({ name: 'debug', msg: 'Done.' })
+    creator.syncCommands({
+      deleteCommands: true,
+      syncPermissions: true
+    })
+    creator.on('synced', () => {
+      process.send({ name: 'debug', msg: 'Commands synced.' })
+      creator.syncCommandsIn('467759978716069888')
+    })
+    creator.on('commandError', (command, error) => console.error(error))
 
-    client.editStatus('online', { type: 2, name: config.defaultPrefix + 'help' })
+    client.editStatus('online', { type: 2, name: '/' })
 
     mongoose.connect(config.mongodb[config.mode], {
       useNewUrlParser: true,
@@ -59,7 +80,7 @@ class Sapphire extends Base {
       dbl.on('error', console.log)
     }
 
-    client.on('messageCreate', async (msg) => {
+    /*client.on('messageCreate', async (msg) => {
       const { command, m, lang, guild } = await commandResolver.resolve(msg, commands) || {}
 
       if (!command) return
@@ -80,7 +101,7 @@ class Sapphire extends Base {
 
       if (emoji.name !== '🗑')
         queueManager.push(msg.guildID, { url: queueManager.searchData[msg.guildID].results[emojiToInt.indexOf(emoji.name)].url }, msg, msg.member.guild.members.find(mbr => mbr.id === userID))
-    })
+    })*/
 
     client.on('guildCreate', (guild) => {
       client.executeWebhook(config.webhook.id, config.webhook.token, {

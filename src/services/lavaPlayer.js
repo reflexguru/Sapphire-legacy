@@ -27,7 +27,7 @@ class LavaPlayer {
       .on('nodeError', (node, error) => console.log(error))
   }
 
-  async initConnection (serverId, member, channel, queueData) {
+  async initConnection (serverId, member, channelID, queueData) {
     let player
 
     if (player = this.manager.players.find(p => p.guild === serverId)) return player
@@ -35,7 +35,7 @@ class LavaPlayer {
     player = this.manager.create({
       guild: serverId,
       voiceChannel: member.voiceState.channelID,
-      textChannel: channel.id,
+      textChannel: channelID,
       selfDeafen: true
     })
 

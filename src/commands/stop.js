@@ -1,27 +1,22 @@
-const CommandTemplate = require('../classes/commandTemplate.js')
+const { SlashCommand, CommandOptionType } = require('slash-create')
+const config = require('../config.js')
 
-class Command extends CommandTemplate {
-  get alias () {
-    return {
-      ru: ['стоп', 'ст'],
-      en: ['stop', 'st']
-    }
+class Command extends SlashCommand {
+  constructor (creator, client, qm, s) {
+    super(creator, {
+      name: 'stop',
+      description: 'Stops playback.',
+      guildIDs: config.mode === 'dev' ? config.debugGuilds : null
+    })
+
+    this.client = client
+    this.qm = qm
+    this.s = s
   }
 
-  get description () {
-    return {
-      ru: 'Останавливает воспроизведение',
-      en: 'Stops playback'
-    }
-  }
-
-  get permissions () {
-    return []
-  }
-
-  async run (msg, sp, qm) {
-    qm.destroy(msg.guildID)
-    msg.addReaction('s_check:540623604505903124')
+  async run (ctx) {
+    this.qm.destroy(ctx.guildID)
+    ctx.delete()
   }
 }
 

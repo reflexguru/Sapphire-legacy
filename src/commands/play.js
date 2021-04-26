@@ -1,36 +1,36 @@
-const CommandTemplate = require('../classes/commandTemplate.js')
+const { SlashCommand, CommandOptionType } = require('slash-create')
+const config = require('../config.js')
 
-class Command extends CommandTemplate {
-  get alias () {
-    return {
-      ru: ['играй', 'игр', 'плей', 'п'],
-      en: ['play', 'p']
-    }
+class Command extends SlashCommand {
+  constructor (creator, client, qm, s) {
+    super(creator, {
+      name: 'play',
+      description: 'Adds a song to queue',
+      options: [{
+        type: CommandOptionType.STRING,
+        name: 'song',
+        description: 'Song url or query to search.',
+        required: true,
+      }],
+      guildIDs: config.mode === 'dev' ? config.debugGuilds : null
+    })
+
+    this.client = client
+    this.qm = qm
+    this.s = s
   }
 
-  get description () {
-    return {
-      ru: 'Добавляет песню в очередь',
-      en: 'Adds a song into queue'
-    }
-  }
+  async run (ctx) {
+    ctx.defer()
+    if (ctx.options.song.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)) {
+      this.qm.push(ctx.guildID, { url: ctx.options.song }, ctx, this.client.guilds.find((guild) => guild.id === ctx.guildID).members.find((user) => user.id === ctx.member.id), this.client.getChannel(ctx.channelID))
+    } else {
+      const results = await this.s.search('yt', ctx.options.song)
 
-  get permissions () {
-    return []
-  }
-
-  async run (msg, sp, qm, s) {
-    if (!msg.args[0]) return msg.channel.createMessage(sp.get('nourl'))
-
-    if (msg.args[0].match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/))
-      qm.push(msg.guildID, { url: msg.args[0] }, msg, msg.member)
-    else {
-      const results = await s.search('yt', msg.args.join(' '))
-
-      if (results.length)
-        qm.push(msg.guildID, { url: results[0].url }, msg, msg.member)
-      else
-        msg.channel.createMessage(sp.get('cannotfind'))
+      if (results.length) {
+        this.qm.push(ctx.guildID, { url: results[0].url }, ctx, this.client.guilds.find((guild) => guild.id === ctx.guildID).members.find((user) => user.id === ctx.member.id), this.client.getChannel(ctx.channelID))
+      } else
+        ctx.send('Search didn\'t return any results.')
     }
   }
 }

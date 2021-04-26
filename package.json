@@ -12,6 +12,7 @@
     "mongoose": "^5.9.27",
     "prism-media": "^1.2.2",
     "simple-youtube-api": "^5.2.1",
+    "slash-create": "^3.1.0",
     "ytdl-core": "^3.2.0"
   }
 }

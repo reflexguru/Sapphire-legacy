@@ -6,6 +6,10 @@ module.exports = {
     dev: String, // dev mode token
     prod: String // production mode token
   },
+  publicKeys: { // dev || prod
+    dev: String,
+    prod: String
+  },
   webhook: {
     id: String,
     token: String

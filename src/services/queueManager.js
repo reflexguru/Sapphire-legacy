@@ -34,20 +34,21 @@ class QueueManager {
     })
   }
 
-  async push (serverId, data, msg, member) {
+  async push (serverId, data, msg, member, channel) {
     if (!this.data[serverId]) this.data[serverId] = { list: [], current: 0 }
-    this.data[serverId].channel = msg.channel.id
+    this.data[serverId].channel = channel.id
 
     let streamdata
     
     try {
       streamdata = await this.resolver.resolve(data.url, this.lavaplayer, serverId, member, msg)
+      msg.send({ embeds: [this.generateEmbed(streamdata[0], true)] })
     } catch (e) {
-      msg.addReaction('dnd:525376389449252864')
+      msg.send('Song is unavailable.')
       console.error(e)
     }
 
-    if (streamdata.invalid) return msg.addReaction('dnd:525376389449252864')
+    if (streamdata.invalid) return msg.send('Song is unavailable.')
 
     if (!streamdata.length) return
 
@@ -57,27 +58,27 @@ class QueueManager {
     let m = {}
 
     if (config.audioSender === 0 && !this.data[serverId].voiceState) {
-      await this.initConnection(serverId, member, msg.channel)
+      await this.initConnection(serverId, member, channel)
       this.data[serverId].voiceState = true
       this.play(serverId)
-      m = await msg.channel.createMessage({
+      m = await channel.createMessage({
         embed: this.generateEmbed(streamdata[0])
       })
     } else if (config.audioSender === 1 && !this.data[serverId].voiceState) {
-      const player = await this.lavaplayer.initConnection(serverId, member, msg.channel)
+      console.log(channel)
+      const player = await this.lavaplayer.initConnection(serverId, member, channel.id)
       player.events = new EventEmitter()
       this.play(serverId, player)
       this.data[serverId].voice = player
       this.data[serverId].voiceState = true
       this.data[serverId].voiceId = member.voiceState.channelID
-      this.data[serverId].textChannel = msg.channel
-      m = await msg.channel.createMessage({
-        embed: this.generateEmbed(streamdata[0])
-      })
+      this.data[serverId].textChannel = channel
+      if (this.data[serverId].list.length > 1)
+        m = await channel.createMessage({
+          embed: this.generateEmbed(streamdata[0])
+        })
 
-      const channel = msg.channel
-
-      player.events.on('vend', async () => {
+      player.events.on('vend', async (ctx) => {
         this.data[serverId].current++
   
         if (this.data[serverId].message)
@@ -92,12 +93,17 @@ class QueueManager {
         } else {
           this.data[serverId].voiceState = false
           this.play(serverId, player)
-          this.data[serverId].message = (await channel.createMessage({
-            embed: this.generateEmbed(this.data[serverId].list[this.data[serverId].current])
-          })).id
+          if (!ctx)
+            this.data[serverId].message = (await channel.createMessage({
+              embed: this.generateEmbed(this.data[serverId].list[this.data[serverId].current])
+            })).id
+          else
+            ctx.send({
+              embeds: [this.generateEmbed(this.data[serverId].list[this.data[serverId].current])]
+            })
         }
       })
-    } else m = await msg.addReaction('s_check:540623604505903124')
+    } else msg.send({ embeds: [this.generateEmbed(streamdata[0], true)] })
 
     if (this.data[serverId].message)
       this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
@@ -166,13 +172,14 @@ class QueueManager {
     })
   }
 
-  voiceEmit (serverId, event) {
-    this.data[serverId].voice.events.emit(event)
+  voiceEmit (serverId, event, ctx) {
+    this.data[serverId].voice.events.emit(event, ctx)
   }
 
-  generateEmbed (streamData) {
+  generateEmbed (streamData, added) {
     return new Embed()
       .color('#2f3136')
+      .footer(added ? 'Added to queue' : '')
       .description(
         (
           ( streamData.source === 'Spotify' && '<:spotify:743934452115439676>' ) ||

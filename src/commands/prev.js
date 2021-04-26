@@ -1,28 +1,24 @@
-const CommandTemplate = require('../classes/commandTemplate.js')
+const { SlashCommand, CommandOptionType } = require('slash-create')
 const { emit } = require('../models/guild.js')
+const config = require('../config.js')
 
-class Command extends CommandTemplate {
-  get alias () {
-    return {
-      ru: ['пред', 'прев', 'н', '<'],
-      en: ['prev', 'back', 'b', '<']
-    }
+class Command extends SlashCommand {
+  constructor (creator, client, qm, s) {
+    super(creator, {
+      name: 'prev',
+      description: 'Plays previous song from the queue',
+      deferEphemeral: true,
+      guildIDs: config.mode === 'dev' ? config.debugGuilds : null
+    })
+
+    this.client = client
+    this.qm = qm
+    this.s = s
   }
 
-  get description () {
-    return {
-      ru: 'Включает предыдущую песню',
-      en: 'Plays previous song'
-    }
-  }
-
-  get permissions () {
-    return []
-  }
-
-  async run (msg, sp, qm) {
-    qm.getBack(msg.guildID)
-    qm.voiceEmit(msg.guildID, 'vend')
+  async run (ctx) {
+    this.qm.getBack(ctx.guildID)
+    this.qm.voiceEmit(ctx.guildID, 'vend', ctx)
   }
 }
 
