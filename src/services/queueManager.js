@@ -22,6 +22,16 @@ class QueueManager {
         this.data[player.options.guild].voice.events.emit('vend')
       else this.data[player.options.guild].voiceState = true
     })
+
+    this.lavaplayer.manager.on('trackError', (player) => {
+      const embed = new Embed()
+        .color('#2f3136')
+        .description('Failed to load a song\n' + streams[i].url)
+        .build()
+
+        this.data[player.options.guild].textChannel.createMessage(embed)
+        this.data[player.options.guild].voice.events.emit('vend')
+    })
   }
 
   async push (serverId, data, msg, member) {
@@ -38,6 +48,8 @@ class QueueManager {
     }
 
     if (streamdata.invalid) return msg.addReaction('dnd:525376389449252864')
+
+    if (!streamdata.length) return
 
     for (const stream of streamdata)
       this.data[serverId].list.push(stream)
@@ -58,6 +70,7 @@ class QueueManager {
       this.data[serverId].voice = player
       this.data[serverId].voiceState = true
       this.data[serverId].voiceId = member.voiceState.channelID
+      this.data[serverId].textChannel = msg.channel
       m = await msg.channel.createMessage({
         embed: this.generateEmbed(streamdata[0])
       })

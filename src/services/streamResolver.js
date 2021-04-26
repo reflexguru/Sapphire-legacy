@@ -29,7 +29,14 @@ class StreamResolver {
         const lavaTracks = await player.search(streams[i].streamUrl)
 
         for (const track of lavaTracks.tracks) {
-          lavaStreams.push(Object.assign({}, streams[i], { lavaTrack: track }, track.title && track.title !== 'Unknown title' && { name: track.title }))
+          if (track.exception) {
+            const embed = new Embed()
+              .color('#2f3136')
+              .description('Failed to load a song\n' + streams[i].url)
+              .build()
+
+            msg.channel.createMessage(embed)
+          } else lavaStreams.push(Object.assign({}, streams[i], { lavaTrack: track }, track.title && track.title !== 'Unknown title' && { name: track.title }))
         }
       }
 
