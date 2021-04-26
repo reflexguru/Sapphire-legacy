@@ -18,7 +18,7 @@ class Command extends SlashCommand {
   async run (ctx) {
     let queue = this.qm.getQueue(ctx.guildID)
 
-    let queueString = `Quele length: ${queue.list.length}\n`
+    let queueString = `Queue length: ${queue.list.length}\n`
     let firstSong = queue.current - 5 < 0 ? 0 : queue.current - 5 > queue.list.length - 6 ? queue.list.length - 11 : queue.np - 5
 
     for (let i = 0; i < 10; i++) {
