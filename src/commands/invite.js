@@ -15,7 +15,7 @@ class Command extends SlashCommand {
     this.s = s
   }
 
-  async run (msg) {
+  async run (ctx) {
     const embed = new Embed()
       .color('#2f3136')
       .description('[Click to invite me!](https://discord.com/oauth2/authorize?client_id=518101066538024960&scope=bot&permissions=3148800)')
