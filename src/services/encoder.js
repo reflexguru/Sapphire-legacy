@@ -8,6 +8,7 @@ class Encoder {
 
   async prepare () {
     const response = await axios.get(this.streamUrl, { responseType: 'stream' })
+    console.log(this.streamUrl)
 
     const encoder = new prism.FFmpeg({
       args: [

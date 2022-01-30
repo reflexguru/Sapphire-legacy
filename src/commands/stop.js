@@ -9,14 +9,14 @@ class Command extends SlashCommand {
       guildIDs: config.mode === 'dev' ? config.debugGuilds : null
     })
 
-    this.client = client
+    this.eris = client
     this.qm = qm
     this.s = s
   }
 
   async run (ctx) {
     this.qm.destroy(ctx.guildID)
-    ctx.delete()
+    ctx.send('Stopped playback.')
   }
 }
 

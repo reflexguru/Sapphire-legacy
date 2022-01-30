@@ -9,7 +9,7 @@ class Command extends SlashCommand {
       guilds: config.mode === 'dev' ? config.debugGuilds : null
     })
 
-    this.client = client
+    this.eris = client
     this.qm = qm
     this.s = s
   }

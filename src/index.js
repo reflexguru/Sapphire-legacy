@@ -1,7 +1,7 @@
 const config = require('./config.js')
 
 const Sharder = require('eris-sharder').Master
-const sharder = new Sharder(config.tokens[config.mode], '/src/shard.js', {
+new Sharder(config.tokens[config.mode], '/src/shard.js', {
   name: 'Sapphire',
   guildsPerShard: 500,
   stats: true,

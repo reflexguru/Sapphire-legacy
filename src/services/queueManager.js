@@ -13,24 +13,26 @@ class QueueManager {
   constructor (client) {
     this.data = {}
     this.searchData = {}
-    this.client = client
+    this.eris = client
     this.resolver = new StreamResolver()
-    this.lavaplayer = new LavaPlayer(this.client)
+    this.lavaplayer = new LavaPlayer(this.eris)
 
-    this.lavaplayer.manager.on('trackEnd', (player) => {
-      if (this.data[player.options.guild].voiceState)
-        this.data[player.options.guild].voice.events.emit('vend')
-      else this.data[player.options.guild].voiceState = true
+    this.lavaplayer.manager.on('queueEnd', (player) => {
+      this.data[player.options.guild].voice.events.emit('vend')
     })
 
     this.lavaplayer.manager.on('trackError', (player) => {
-      const embed = new Embed()
-        .color('#2f3136')
-        .description('Failed to load a song\n' + streams[i].url)
-        .build()
+      this.data[player.options.guild].textChannel.createMessage('Failed to load the current song')
+      this.data[player.options.guild].voice.events.emit('vend')
+    })
 
-        this.data[player.options.guild].textChannel.createMessage(embed)
-        this.data[player.options.guild].voice.events.emit('vend')
+    this.lavaplayer.manager.on('socketClosed', (player) => {
+      this.data[player.options.guild].current = -2
+      this.data[player.options.guild].voice.events.emit('vend')
+    })
+
+    this.lavaplayer.manager.on('playerMove', (player, oldChannel, newChannel) => {
+      this.data[player.options.guild].voiceId = newChannel
     })
   }
 
@@ -82,7 +84,7 @@ class QueueManager {
         this.data[serverId].current++
   
         if (this.data[serverId].message)
-          this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
+          this.eris.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
   
         if (
           this.data[serverId].current >= this.data[serverId].list.length ||
@@ -106,13 +108,13 @@ class QueueManager {
     } else msg.send({ embeds: [this.generateEmbed(streamdata[0], true)] })
 
     if (this.data[serverId].message)
-      this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
+      this.eris.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
 
     this.data[serverId].message = m.id
   }
 
   async initConnection (serverId, member, channel) {
-    this.data[serverId].voice = await this.client.joinVoiceChannel(member.voiceState.channelID, { opusOnly: true })
+    this.data[serverId].voice = await this.eris.joinVoiceChannel(member.voiceState.channelID, { opusOnly: true })
     this.data[serverId].voiceId = member.voiceState.channelID
 
     this.data[serverId].voice.on('setend', () => {
@@ -122,14 +124,11 @@ class QueueManager {
     this.data[serverId].voice.on('end', async () => {
       this.data[serverId].current++
 
-      if (this.data[serverId].message)
-        this.client.deleteMessage(this.data[serverId].channel, this.data[serverId].message)
-
       if (
         this.data[serverId].current >= this.data[serverId].list.length ||
         this.data[serverId].current < 0
       ) {
-        this.client.leaveVoiceChannel(this.data[serverId].voiceId)
+        this.eris.leaveVoiceChannel(this.data[serverId].voiceId)
         delete this.data[serverId]
       } else {
         this.play(serverId)

@@ -1,5 +1,4 @@
-const { SlashCommand, CommandOptionType } = require('slash-create')
-const Embed = require('../services/embedConstructor.js')
+const { SlashCommand, CommandOptionType, ComponentType } = require('slash-create')
 const config = require('../config.js')
 
 class Command extends SlashCommand {
@@ -7,41 +6,68 @@ class Command extends SlashCommand {
     super(creator, {
       name: 'search',
       description: 'Searches songs and adds them to queue.',
-      options: [{
-        type: CommandOptionType.STRING,
-        name: 'query',
-        description: 'Query to search.',
-        required: true
-      }],
+      options: [
+        {
+          type: CommandOptionType.STRING,
+          choices: [
+            {
+              name: 'YouTube',
+              value: 'yt'
+            },
+            {
+              name: 'SoundCloud',
+              value: 'sc'
+            }
+          ],
+          name: 'service',
+          description: 'Service to search in.',
+          required: true
+        },
+        {
+          type: CommandOptionType.STRING,
+          name: 'query',
+          description: 'Query to search.',
+          required: true
+        }
+      ],
       guildIDs: config.mode === 'dev' ? config.debugGuilds : null
     })
 
-    this.client = client
+    this.eris = client
     this.qm = qm
     this.s = s
   }
 
   async run (ctx) {
-    /*
-      const service = msg.args[0]
-      const query = msg.args.slice(1).join(' ')
+    const service = ctx.options.service
+    const query = ctx.options.query
 
-      const results = await s.search(service, query)
+    const results = await this.s.search(service, query)
+    const compiledResults = []
 
-      let embed = new Embed()
-        .color('#2f3136')  
+    for (const result of results) {
+      compiledResults.push({
+        value: String(results.indexOf(result)),
+        label: result.name,
+        description: result.artist
+      })
+    }
 
-      for (const result of results) {
-        embed = embed.field((results.indexOf(result) + 1) + '. ' + result.name, result.artist)
-      }
-
-      embed = embed.build()
-
-      const m = await msg.channel.createMessage({ embed })
-
-      qm.searchData[msg.guildID] = { msg: msg.id, results }
-    */
-    return 'This command will start working later.'
+    await ctx.send('Select a result:', {
+      components: [
+        {
+          components: [
+            {
+              type: ComponentType.SELECT,
+              custom_id: 'search',
+              options: compiledResults
+            }
+          ],
+          type: ComponentType.ACTION_ROW
+        }
+      ]
+    })
+    this.qm.searchData[ctx.guildID] = { results }
   }
 }
 

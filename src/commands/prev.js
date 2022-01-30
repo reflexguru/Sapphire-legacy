@@ -1,5 +1,4 @@
-const { SlashCommand, CommandOptionType } = require('slash-create')
-const { emit } = require('../models/guild.js')
+const { SlashCommand } = require('slash-create')
 const config = require('../config.js')
 
 class Command extends SlashCommand {
@@ -11,7 +10,7 @@ class Command extends SlashCommand {
       guildIDs: config.mode === 'dev' ? config.debugGuilds : null
     })
 
-    this.client = client
+    this.eris = client
     this.qm = qm
     this.s = s
   }

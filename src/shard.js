@@ -1,16 +1,12 @@
 const Base = require('eris-sharder').Base
 
 // libraries
-const mongoose = require('mongoose')
 const fs = require('fs')
-const DBL = require('dblapi.js')
-const { SlashCreator, GatewayServer } = require('slash-create')
-const path = require('path')
+const { SlashCreator, GatewayServer, ComponentType } = require('slash-create')
 
 // services
 const config = require('./config.js')
 const QueueManager = require('./services/queueManager.js')
-const StringProvider = require('./services/stringProvider.js')
 const Searcher = require('./services/searcher.js')
 
 class Sapphire extends Base {
@@ -47,25 +43,13 @@ class Sapphire extends Base {
     })
     creator.on('synced', () => {
       process.send({ name: 'debug', msg: 'Commands synced.' })
-      creator.syncCommandsIn('467759978716069888')
+      creator.syncCommandsIn('525368366546944012')
     })
     creator.on('commandError', (command, error) => console.error(error))
 
     client.editStatus('online', { type: 2, name: '/' })
-
-    mongoose.connect(config.mongodb[config.mode], {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
-      useCreateIndex: true
-    }, (err) => {
-      if (err) {
-        process.send({ name: 'error', msg: 'Failed to connect to mongodb, stopping shard...' })
-        process.exit()
-      } else process.send({ name: 'debug', msg: 'Connected to mongodb' })
-    })
-
-    if (config.mode === 'prod') {
+  
+    /* if (config.mode === 'prod') {
       process.send({ name: 'debug', msg: 'Initing DBL api...' })
 
       const dbl = new DBL(config.dblToken, client)
@@ -78,7 +62,7 @@ class Sapphire extends Base {
       })
 
       dbl.on('error', console.log)
-    }
+    } */
 
     /*client.on('messageCreate', async (msg) => {
       const { command, m, lang, guild } = await commandResolver.resolve(msg, commands) || {}
@@ -102,6 +86,20 @@ class Sapphire extends Base {
       if (emoji.name !== '🗑')
         queueManager.push(msg.guildID, { url: queueManager.searchData[msg.guildID].results[emojiToInt.indexOf(emoji.name)].url }, msg, msg.member.guild.members.find(mbr => mbr.id === userID))
     })*/
+
+    creator.on('componentInteraction', (ctx) => {
+      switch (ctx.componentType) {
+        case ComponentType.SELECT:
+          queueManager.push(
+            ctx.guildID,
+            { url: queueManager.searchData[ctx.guildID].results[Number(ctx.values[0])].url },
+            ctx,
+            client.guilds.get(ctx.guildID).members.get(ctx.member.id),
+            client.guilds.get(ctx.guildID).channels.get(ctx.channelID)
+          )
+        break
+      }
+    })
 
     client.on('guildCreate', (guild) => {
       client.executeWebhook(config.webhook.id, config.webhook.token, {
